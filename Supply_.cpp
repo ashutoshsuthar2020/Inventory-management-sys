@@ -44,6 +44,7 @@ public:
 	DateOfDeparture = departureDate;
 	Vehicle= v;
 	VehicleRegNo = regNo;
+	//details should be saved in text file here.
 	}
 	
 	void LocalSupply::GetData(){
@@ -54,7 +55,7 @@ public:
 		cin>>name;
 		cout<<"Amount :  ";
 		cin>>amount;
-		cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
+		cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";							//date error checking needed if enter char...
 		cin>>date.Day>>date.Month>>date.Year;
 			while(date.Day<1||date.Day>30||date.Month<1||date.Month>12){
 			cout<<"Error! Please enter a valid date"<<endl;
@@ -70,7 +71,27 @@ public:
 			cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
 			cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
 			}
-		cout<<"Vehicle used for the transportation(Large trucks/Small trucks/Vans) :  ";			//Better use an Enum i guess
+			while(1){
+			if(departureDate.Year>date.Year){
+			cout<<"Error! Departure date should be before the Arrival date"<<endl;
+			cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
+			cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
+			}
+			if(departureDate.Month>date.Month&&departureDate.Year<=date.Year){
+			cout<<"Error! Departure date should be before the Arrival date"<<endl;
+			cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
+			cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
+			}
+			if(departureDate.Day>date.Day&&departureDate.Month<=date.Month&&departureDate.Year<=date.Year){
+			cout<<"Error! Departure date should be before the Arrival date"<<endl;
+			cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
+			cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
+			}
+			if(departureDate.Day<=date.Day&&departureDate.Month<=date.Month&&departureDate.Year<=date.Year){
+			break;
+			}
+			}
+		cout<<"Vehicle used for the transportation(Large trucks/Small trucks/Vans) :  ";			
 		cin>>v;
 		cout<<"Vehicle registration number :  ";
 		cin>>regNo;
@@ -97,6 +118,7 @@ public:
 	CountryOfOrigin = country;
 	ArrivalDateAtHarbour = arrivalDate;
 	ShipNo= no;
+	//details should be saved in text file here.
 	}
 
 	void InternationalSupply::GetData(){
@@ -124,7 +146,27 @@ public:
 			cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
 			cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
 			}
-		cout<<"Ship number :  ";
+			while(1){
+			if(arrivalDate.Year>date.Year){
+			cout<<"Error! Arrival date at the local harbour should be before the Arrival date at the Supermarket"<<endl;
+			cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
+			cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
+			}
+			if(arrivalDate.Month>date.Month&&arrivalDate.Year<=date.Year){
+			cout<<"Error! Arrival date at the local harbour should be before the Arrival date at the Supermarket"<<endl;
+			cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
+			cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
+			}
+			if(arrivalDate.Day>date.Day&&arrivalDate.Month<=date.Month&&arrivalDate.Year<=date.Year){
+			cout<<"Error! Arrival date at the local harbour should be before the Arrival date at the Supermarket"<<endl;
+			cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
+			cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
+			}
+			if(arrivalDate.Day<=date.Day&&arrivalDate.Month<=date.Month&&arrivalDate.Year<=date.Year){
+			break;
+			}
+			}
+		cout<<"Ship number :  ";														//int error checking needed
 		cin>>no;
 		cout<<endl;
 		InternationalSupply::SetData(name,amount,date,country,arrivalDate,no);	
@@ -136,8 +178,6 @@ int main() {
 LocalSupply L1("","");
 InternationalSupply L2;
 L2.GetData();
-
-//Still need data type error checking - but athu eppidi panrathu nu maranthuttan :(
 
 return 0;
 }
