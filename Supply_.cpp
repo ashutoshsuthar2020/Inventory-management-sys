@@ -1,9 +1,6 @@
 #include<iostream>
 #include<string>
-
 using namespace std;
-
-enum Status{pending, approved};
 
 struct Date{
 	int Day, Month, Year;
@@ -11,21 +8,20 @@ struct Date{
 
 class Supply {
 private:
-	string Quantity="";
+	string Quantity;
 	Date DateOfArrival;
-	string ItemName ="";
-	Status status;	
-public:
-	Supply():ItemName(""),Quantity(""), DateOfArrival(), status(pending) {}
-	Supply(string name="" , string amount="" , Date d = {}, Status s= pending ):ItemName(name), Quantity(amount), DateOfArrival(d), status(s) {}
-	virtual void SetData(string name, string amount, Date date) = 0;
-	virtual~Supply(){}
-};
+	string ItemName ;
+	string Status;
 
-void Supply::SetData(string name, string amount,Date date){
+public:
+	Supply( string name =""  , string amount="" , Date d={0,0,0}, string s="Pending" ):ItemName(name), Quantity(amount), DateOfArrival(d),Status(s) {}
+	~Supply(){}
+	void SetData(string name, string amount, Date date);
+};
+	void Supply:: SetData(string name, string amount,Date date){
 	ItemName = name;
 	Quantity = amount;
-	DateOfArrival = date;
+	DateOfArrival = date;		
 }
 
 
@@ -36,18 +32,53 @@ private:
 	string Vehicle;
 	string VehicleRegNo;
 public:
-	LocalSupply(string name="" , string amount="" , Date d = {}, Status s= pending, string origin="", Date departureDate = {}, string v ="", string regNo="" ): Supply(name, amount, d,s ),NameOfOrigin(origin), DateOfDeparture(departureDate), Vehicle(v), VehicleRegNo(regNo){}
-	void SetData(string name, string amount, Date date, string origin, Date departureDate, string Vehicle, string VehicleRegNo);
-	~LocalSupply(){}
+	LocalSupply(string name="" , string amount="" , Date d={0,0,0} , string s="Pending", string origin="", Date departureDate={0,0,0} , string v="" , string regNo="" ): Supply(name, amount, d,s ),NameOfOrigin(origin), DateOfDeparture(departureDate), Vehicle(v), VehicleRegNo(regNo){}
+	~LocalSupply(){	}
+	void SetData(string name, string amount, Date date, string origin, Date departureDate, string v, string regNo);
+	void GetData();
 };
 
 	void LocalSupply::SetData(string name, string amount, Date date, string origin, Date departureDate, string v, string regNo){
-	Supply:: SetData("name", "amount", date);
+	Supply:: SetData(name, amount, date);
 	NameOfOrigin = origin;
 	DateOfDeparture = departureDate;
 	Vehicle= v;
 	VehicleRegNo = regNo;
-}
+	}
+	
+	void LocalSupply::GetData(){
+		string name, amount, origin, v, regNo;
+		Date date, departureDate;
+		cout<<"--- Enter the details of the item ---"<<endl;
+		cout<<"Name :  ";
+		cin>>name;
+		cout<<"Amount :  ";
+		cin>>amount;
+		cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
+		cin>>date.Day>>date.Month>>date.Year;
+			while(date.Day<1||date.Day>30||date.Month<1||date.Month>12){
+			cout<<"Error! Please enter a valid date"<<endl;
+			cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
+			cin>>date.Day>>date.Month>>date.Year; 
+			}
+		cout<<"Name of origin(Farm/Factory) :  ";
+		cin>>origin;
+		cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
+		cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
+			while(departureDate.Day<1||departureDate.Day>30||departureDate.Month<1||departureDate.Month>12){
+			cout<<"Error! Please enter a valid date"<<endl;
+			cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
+			cin>>departureDate.Day>>departureDate.Month>>departureDate.Year;
+			}
+		cout<<"Vehicle used for the transportation(Large trucks/Small trucks/Vans) :  ";			//Better use an Enum i guess
+		cin>>v;
+		cout<<"Vehicle registration number :  ";
+		cin>>regNo;
+		cout<<endl;
+		LocalSupply::SetData(name,amount,date,origin,departureDate,v,regNo);	
+	}
+
+
 
 class InternationalSupply: public Supply{
 private:
@@ -55,22 +86,58 @@ private:
 	Date ArrivalDateAtHarbour;
 	int ShipNo;
 public:
-	InternationalSupply(string name="" , string amount="" , Date d = {}, Status s= pending, string country="", Date arrivalDate = {}, int no =0): Supply(name, amount, d,s ),CountryOfOrigin(country), ArrivalDateAtHarbour(arrivalDate), ShipNo(no){}
-	void SetData(string name, string amount, Date date, string country, Date arrivalDate, int no);
+	InternationalSupply(string name="" , string amount="" , Date d={0,0,0} , string s="Pending", string country="", Date arrivalDate={0,0,0} , int no=0): Supply(name, amount, d,s ),CountryOfOrigin(country), ArrivalDateAtHarbour(arrivalDate), ShipNo(no){}
 	~InternationalSupply(){}
+	void SetData(string name, string amount, Date date, string country, Date arrivalDate, int no);
+	void GetData();
 }; 
 
 	void InternationalSupply::SetData(string name, string amount, Date date, string country, Date arrivalDate, int no){
-	Supply:: SetData("name", "amount", date);
+	Supply:: SetData(name, amount, date);
 	CountryOfOrigin = country;
 	ArrivalDateAtHarbour = arrivalDate;
 	ShipNo= no;
-}
+	}
+
+	void InternationalSupply::GetData(){
+		string name, amount, country;
+		Date date, arrivalDate;
+		int no;
+		cout<<"--- Enter the details of the item ---"<<endl;
+		cout<<"Name :  ";
+		cin>>name;
+		cout<<"Amount :  ";
+		cin>>amount;
+		cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
+		cin>>date.Day>>date.Month>>date.Year; 									//Assuming that all the 12 months are made up of 30 days
+			while(date.Day<1||date.Day>30||date.Month<1||date.Month>12){
+			cout<<"Error! Please enter a valid date"<<endl;
+			cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
+			cin>>date.Day>>date.Month>>date.Year; 
+			}
+		cout<<"Country of origin :  ";
+		cin>>country;
+		cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
+		cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
+			while(arrivalDate.Day<1||arrivalDate.Day>30||arrivalDate.Month<1||arrivalDate.Month>12){
+			cout<<"Error! Please enter a valid date"<<endl;
+			cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
+			cin>>arrivalDate.Day>>arrivalDate.Month>>arrivalDate.Year;
+			}
+		cout<<"Ship number :  ";
+		cin>>no;
+		cout<<endl;
+		InternationalSupply::SetData(name,amount,date,country,arrivalDate,no);	
+	}
 
 
 int main() {
 	
-//LocalSupply L1();
+LocalSupply L1("","");
+InternationalSupply L2;
+L2.GetData();
+
+//Still need data type error checking - but athu eppidi panrathu nu maranthuttan :(
 
 return 0;
 }
