@@ -3,7 +3,9 @@
 #include <vector>
 #include <fstream>
 #include <unordered_map>
-#include<limits>
+
+//DONT FORCE EXIT
+
 struct Date{
     int day;
     int month;
@@ -14,11 +16,15 @@ struct Transaction{
     std::string cashierName;
     std::string customerName;
     std::vector<std::pair<std::string, int>> items;
-    Transaction(std::string cashierName, std::string customerName, std::vector<std::pair<std::string, int>> items);
+    Transaction();
+    Transaction(std::string cashierName, std::string customerName, std::string item, int no);
 };
 
-Transaction::Transaction(std::string cashierName, std::string customerName, std::vector<std::pair<std::string, int>> items) : 
-                            cashierName(cashierName), customerName(customerName), items(items) {}
+Transaction::Transaction(){}
+
+Transaction::Transaction(std::string cashierName, std::string customerName, std::string item, int no): cashierName(cashierName), customerName(customerName) {
+	items.emplace_back(std::make_pair(item, no));
+}
 
 class Owner;
 class Manager;
@@ -58,15 +64,16 @@ class Item{
 };
 
 Item::Item(){
+	getchar();
     std::cout<<"Item Name          : ";
-    std::cin>>item_name;
+    std::getline(std::cin, item_name);
 
     do{
         std::cout<<"Retail Price       : ";
         while (!(std::cin >> retail_price)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
-            std::cout<<"Enter A Suitable value : ";
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<<"Enter a suitable value : ";
         }
     }while (0 >= retail_price);
 
@@ -74,8 +81,8 @@ Item::Item(){
         std::cout<<"Discount           : ";
         while (!(std::cin >> discount)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
-            std::cout<<"Enter A Suitable value : ";
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<<"Enter a suitable value : ";
         }
     }while ((discount<0)||(discount>100));
 
@@ -115,10 +122,13 @@ class Brand{
 };
 
 Brand::Brand(){
+	getchar();
     std::cout<<"Enter Brand name   : ";
-    std::cin>>brand_name;
-    std::cout<<"Enter Brand region : ";
-    std::cin>>brand_region;
+    std::getline(std::cin, brand_name);
+    do{
+	    std::cout<<"Enter Brand region (Local / Imported) : ";
+	    std::cin>>brand_region;
+	}while(brand_region != "Local" && brand_region != "Imported");
 }
 
 Brand::Brand(std::string a,std::string b):brand_name(a),brand_region(b){}
@@ -149,8 +159,8 @@ Produce::Produce():Item(){
         std::cout<<"Number of Item     : ";
         while (!(std::cin >> number_of_item)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
-            std::cout<<"Enter A Suitable value : ";
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<<"Enter a suitable value : ";
         }
     }while (0 > number_of_item);
 }
@@ -197,8 +207,8 @@ Meat_seafood::Meat_seafood():Item(){
         std::cout<<"Enter weight of item : ";
         while (!(std::cin >> weight_of_item)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
-            std::cout<<"Enter A Suitable value : ";
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<<"Enter a suitable value : ";
         }
     }while (0 > weight_of_item);
 }
@@ -261,7 +271,7 @@ int select_category(){
     return int(Category)-96;
 }
 
-void add_or_remove_stock(int x){
+void add_or_remove_stock(int x, Transaction *transaction = NULL){
     int Category =select_category();
     int i_no,add_or_get,i=0;
     std::cout<<"List of Items";
@@ -285,52 +295,63 @@ void add_or_remove_stock(int x){
         std::cout << "\nSelect Item (No. within range) : ";
         while (!(std::cin >> i_no)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout << "Enter a suitbale item number : ";
         }
     }while (0 > i_no || i < i_no);
 
-    while(true){
-    if(x==1) std::cout<<"Enter the numbers of item to increase : ";
-    else     std::cout<<"Enter the numbers of item to remove   : ";
-    while (!(std::cin >> add_or_get)){
-        std::cin.clear(); // clear the fail bit
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
-        std::cout << "Enter a suitbale item number : ";
-    }
-
-    if(add_or_get<0)
-        std::cout<<"Enter a suitable value.\n";
-    else
-        break;
-    }
+    do{
+    	if(x==1) std::cout<<"Enter the numbers of item to increase : ";
+    	else     std::cout<<"Enter the numbers of item to remove   : ";
+	    while (!(std::cin >> add_or_get)){
+	        std::cin.clear(); // clear the fail bit
+	        std::cin.ignore(100, '\n'); // ignore the invalid entry
+	        std::cout << "Enter a suitbale item number : ";
+	    }
+	}while(add_or_get < 0);
 
     if(Category==1){
         if(x==1)
         *(data_produce[i_no-1].return_pointer_number_of_item()) +=add_or_get;
-        else if(*(data_produce[i_no-1].return_pointer_number_of_item())>=add_or_get)
+        else if(*(data_produce[i_no-1].return_pointer_number_of_item())>=add_or_get){
             *(data_produce[i_no-1].return_pointer_number_of_item()) -=add_or_get;
+            if(transaction){
+            	(*transaction).items.emplace_back(std::make_pair(data_produce[i_no-1].return_item_name(), add_or_get));
+			}
+        }
         else
             std::cout<<"Not enough items in the Stock";
     }else if(Category==2){
         if(x==1)
         *(data_meat_seafood[i_no-1].return_pointer_weight_of_item()) +=add_or_get;
-        else if(*(data_meat_seafood[i_no-1].return_pointer_weight_of_item())>=add_or_get)
+        else if(*(data_meat_seafood[i_no-1].return_pointer_weight_of_item())>=add_or_get){
             *(data_meat_seafood[i_no-1].return_pointer_weight_of_item()) -=add_or_get;
+            if(transaction){
+            	(*transaction).items.emplace_back(std::make_pair(data_meat_seafood[i_no-1].return_item_name(), add_or_get));
+			}
+        }
         else
             std::cout<<"Not enough items in the Stock";
     }else if(Category==3){
         if(x==1)
         *(data_grain[i_no-1].return_pointer_weight_of_item()) +=add_or_get;
-        else if(*(data_grain[i_no-1].return_pointer_weight_of_item())>=add_or_get)
+        else if(*(data_grain[i_no-1].return_pointer_weight_of_item())>=add_or_get){
             *(data_grain[i_no-1].return_pointer_weight_of_item()) -=add_or_get;
+            if(transaction){
+            	(*transaction).items.emplace_back(std::make_pair(data_grain[i_no-1].return_item_name(), add_or_get));
+			}
+        }
         else
             std::cout<<"Not enough items in the Stock";
     }else{
         if(x==1)
         *((*vector_pointer[Category-4])[i_no-1].return_pointer_number_of_item()) +=add_or_get;
-        else if(*((*vector_pointer[Category-4])[i_no-1].return_pointer_number_of_item())>=add_or_get)
+        else if(*((*vector_pointer[Category-4])[i_no-1].return_pointer_number_of_item())>=add_or_get){
             *((*vector_pointer[Category-4])[i_no-1].return_pointer_number_of_item()) -=add_or_get;
+            if(transaction){
+            	(*transaction).items.emplace_back(std::make_pair((*vector_pointer[Category-4])[i_no-1].return_item_name(), add_or_get));
+			}
+        }	
         else
             std::cout<<"Not enough items in the Stock";
     }
@@ -347,13 +368,14 @@ void add_new_item(int Category){
         else                 (*vector_pointer[Category-4]).push_back(Bakery_frozen_diary_snaks_bevarages_health_condiments());
 
         do{
-        std::cout<<"ENTER N/n to add new item/nENTER E/e TO EXIT\n";
+        std::cout<<"ENTER N/n to add a new item\nENTER E/e TO EXIT\n";
         std::cin>>order;
         if((order!='N')&&(order!='n')&&(order!='E')&&(order!='e'))
             std::cout<<"Enter a correct option.\n";
         else
             break;
         }while(true);
+        system("cls");
     }while((order!='E')&&(order!='e'));
 }
 
@@ -363,26 +385,33 @@ void save_and_exit(){
         if(i==0){
             file.open("file_produce.txt");
             for(int k=0;k<data_produce.size();k++)
-            file<<data_produce[k].return_item_name()<<" "<<data_produce[k].return_retail_price()<<" "<<data_produce[k].return_discount()<<" "<<data_produce[k].return_number_of_item()<<"\n";}
+            file<<data_produce[k].return_item_name()<<"\n"<<data_produce[k].return_retail_price()<<" "<<data_produce[k].return_discount()
+			<<" "<<data_produce[k].return_number_of_item()<<"\n";}
         else if(i==1){
             file.open("file_meat_seafood.txt");
             for(int k=0;k<data_meat_seafood.size();k++)
-            file<<data_meat_seafood[k].return_item_name()<<" "<<data_meat_seafood[k].return_retail_price()<<" "<<data_meat_seafood[k].return_discount()<<" "<<data_meat_seafood[k].return_weight_of_item()<<"\n";}
+            file<<data_meat_seafood[k].return_item_name()<<"\n"<<data_meat_seafood[k].return_retail_price()<<" "<<data_meat_seafood[k].return_discount()
+			<<" "<<data_meat_seafood[k].return_weight_of_item()<<"\n";}
         else if(i==2){
             file.open("file_grain.txt");
             for(int k=0;k<data_grain.size();k++)
-            file<<data_grain[k].return_item_name()<<" "<<data_grain[k].return_retail_price()<<" "<<data_grain[k].return_discount()<<" "<<data_grain[k].return_weight_of_item()<<" "<<data_grain[k].return_brand_name()<<" "<<data_grain[k].return_brand_region()<<"\n";}
+            file<<data_grain[k].return_item_name()<<"\n"<<data_grain[k].return_retail_price()<<" "<<data_grain[k].return_discount()<<" "
+			<<data_grain[k].return_weight_of_item()<<"\n"<<data_grain[k].return_brand_name()<<"\n"<<data_grain[k].return_brand_region()<<"\n";}
         else{
             file.open(file_name[i-3]);
             for(int k=0;k<(*vector_pointer[i-3]).size();k++)
-            file<<(*vector_pointer[i-3])[k].return_item_name()<<" "<<(*vector_pointer[i-3])[k].return_retail_price()<<" "<<(*vector_pointer[i-3])[k].return_discount()<<" "<<(*vector_pointer[i-3])[k].return_number_of_item()<<" "<<(*vector_pointer[i-3])[k].return_brand_name()<<" "<<(*vector_pointer[i-3])[k].return_brand_region()<<"\n";}
+            file<<(*vector_pointer[i-3])[k].return_item_name()<<"\n"<<(*vector_pointer[i-3])[k].return_retail_price()<<" "<<
+			(*vector_pointer[i-3])[k].return_discount()<<" "<<(*vector_pointer[i-3])[k].return_number_of_item()<<"\n"<<(*vector_pointer[i-3])[k].return_brand_name()<<
+			"\n"<<(*vector_pointer[i-3])[k].return_brand_region()<<"\n";}
         file.close();
     }
     }
+    exit(0);
 }
  
 void initialize_data(){
     file.open("file_produce.txt");
+    int i;
     if(!file){
         std::cout<<"File_produce.txt not found\n";
         std::ofstream newfile("file_produce.txt");
@@ -390,14 +419,23 @@ void initialize_data(){
         newfile.close();
     }
     else{
-         while(!file.eof()){
-        file>>item_name>>retail_price>>discount>>number_of_item;
-        data_produce.push_back(Produce (item_name,retail_price,discount,number_of_item));
+    	i = 0;
+        while(!file.eof()){
+        	if(i == 0){
+        		getline(file, item_name);
+			}
+			else if(i == 1){
+				file>>retail_price>>discount>>number_of_item;
+			}
+			else{
+				data_produce.push_back(Produce (item_name,retail_price,discount,number_of_item));
+				i = -1;
+			}
+			i++;
         }
-    data_produce.pop_back();
     }
     file.close();
-
+    
     file.open("file_meat_seafood.txt");
     if(!file){
         std::cout<<"File_meat_seafood.txt not found\n";
@@ -406,11 +444,20 @@ void initialize_data(){
         newfile.close();
     }
     else{
+    	i = 0;
         while(!file.eof()){
-        file>>item_name>>retail_price>>discount>>weight_of_item;
-        data_meat_seafood.push_back(Meat_seafood (item_name,retail_price,discount,weight_of_item));
+        	if(i == 0){
+        		getline(file, item_name);
+			}
+			else if(i == 1){
+				file>>retail_price>>discount>>number_of_item;
+			}
+			else{
+				data_meat_seafood.push_back(Meat_seafood (item_name,retail_price,discount,number_of_item));
+				i = -1;
+			}
+			i++;
         }
-    data_meat_seafood.pop_back();
     }
     file.close();
  
@@ -422,28 +469,60 @@ void initialize_data(){
         newfile.close();
     }
     else{
+    	i = 0;
         while(!file.eof()){
-        file>>item_name>>retail_price>>discount>>weight_of_item>>brand_name>>brand_region;
-        data_grain.push_back(Grain (item_name,retail_price,discount,weight_of_item,brand_name,brand_region));
+        	if(i == 0){
+        		getline(file, item_name);
+			}
+			else if(i == 1){
+				file>>retail_price>>discount>>weight_of_item;
+				getline(file, brand_name);
+			}
+			else if(i == 2){
+				getline(file, brand_name);
+			}
+			else if(i == 3){
+				file>>brand_region;
+			}
+			else{
+				data_grain.push_back(Grain (item_name,retail_price,discount,weight_of_item,brand_name,brand_region));
+				i = -1;
+			}
+			i++;
         }
-    data_grain.pop_back();
     }
     file.close();
 
-    for(int i=0;i<7;i++){
-        file.open(file_name[i]);
+    for(int j=0;j<7;j++){
+        file.open(file_name[j]);
         if(!file){
-            std::cout<<file_name[i]<<" not found\n";
-            std::ofstream newfile(file_name[i]);
-            add_new_item(i+4);
+            std::cout<<file_name[j]<<" not found\n";
+            std::ofstream newfile(file_name[j]);
+            add_new_item(j+4);
             newfile.close();
         }
         else{
-            while(!file.eof()){
-            file>>item_name>>retail_price>>discount>>number_of_item>>brand_name>>brand_region;
-            (*vector_pointer[i]).push_back(Bakery_frozen_diary_snaks_bevarages_health_condiments (item_name,retail_price,discount,number_of_item,brand_name,brand_region));
+        	i = 0;
+        	while(!file.eof()){
+        	if(i == 0){
+        		getline(file, item_name);
+			}
+			else if(i == 1){
+				file>>retail_price>>discount>>number_of_item;
+				getline(file, brand_name);
+			}
+			else if(i == 2){
+				getline(file, brand_name);
+			}
+			else if(i == 3){
+				file>>brand_region;
+			}
+			else{
+				(*vector_pointer[j]).push_back(Bakery_frozen_diary_snaks_bevarages_health_condiments (item_name,retail_price,discount,number_of_item,brand_name,brand_region));
+				i = -1;
+			}
+			i++;
         }
-        (*vector_pointer[i]).pop_back();
         }
         file.close();
     }
@@ -505,7 +584,7 @@ FloorWorker::FloorWorker(std::string fullName, std::string userName): Staff(full
 
 void FloorWorker::stockIncrement(){
             // if not already here you cantt stock up ..call manager or Onwer
-            //stock++;
+    add_or_remove_stock(1); //add num items
 }
 
 FloorWorker::~FloorWorker() {}
@@ -515,7 +594,7 @@ class Cashier: public virtual Staff{
         Cashier();
         Cashier(std::string fullName, std::string userName);
         void makeTransaction(std::string userName);
-        void stockDecrement(std::vector<std::pair<std::string, int>> items = {{"", 0}});
+        void stockDecrement();
         ~Cashier();
 };
 
@@ -523,19 +602,43 @@ Cashier::Cashier() {}
 
 Cashier::Cashier(std::string fullName, std::string userName): Staff(fullName, "Cashier", userName){}
 
-void Cashier::stockDecrement(std::vector<std::pair<std::string, int>> items){
-            //stock--;
+void Cashier::stockDecrement(){
+	add_or_remove_stock(0); //remove num items
 }
 
 void Cashier::makeTransaction(std::string fullName){
+	Transaction transaction;
+	char c;
+	int n = 0;
+	do{
+		do{	
+			system("cls");
+			n++;
+			add_or_remove_stock(0, &transaction); //remove num items
+			std::cout << "\nMake another transaction to this person (Y/N) : ";
+			std::cin >> c;
+		}while(c != 'N' && c != 'Y');
+	}while(c == 'Y');
     getchar();
     std::string customerName;
     std::cout << "\nEnter customer name : ";
     std::getline(std::cin, customerName);
     //fullName
 
-    // Transaction transaction(cashierName, customerName, items);
-    // transactionDetails.emplace_back(transaction);
+    
+    transaction.cashierName = fullName;
+    transaction.customerName = customerName;
+    transactionDetails.emplace_back(transaction);
+    
+    std::ofstream file;
+    file.open("transactionData.txt");
+    for(int i = 0; i < transactionDetails.size(); i++){
+    	for(int j = 0; j < n; j++){
+    		file << transactionDetails[i].cashierName << "\n" << transactionDetails[i].customerName << "\n" << transactionDetails[i].items[j].first << "\n"
+        	<< transactionDetails[i].items[j].second << "\n";
+		}
+    }
+    file.close();
 
 }
 
@@ -546,6 +649,7 @@ class Manager: public FloorWorker, public Cashier{
         Manager();
         Manager(std::string fullName, std::string userName);
         void readStaffDetails();
+        void addNewItemToStock();
         ~Manager();
 };
 
@@ -562,6 +666,21 @@ void Manager::readStaffDetails(){
     }
     std::cout << "\n\n End of Staff Data \n\nPress enter to go back";
     getchar();
+}
+
+void Manager::addNewItemToStock(){
+	char c;
+	do{
+		std::cout << "Do you want to (A)add new item to inventory or (B)increase the stock ? ";
+		std::cin >> c;
+	}while(c != 'A' && c!= 'B');
+	
+	if(c == 'A'){
+		add_new_item(select_category());         //add new item
+	}
+	else{
+		FloorWorker::stockIncrement();
+	}
 }
 
 Manager::~Manager() {}
@@ -597,6 +716,7 @@ void Owner::addStaff(std::string userName, std::string password, std::string ful
 
     std::cout << "\nAn account was created for " << position << ", " << fullName << ".\n\nPress enter to go back\n"; 
     getchar();
+    system("cls");
     saveStaffDetails();
 }
 
@@ -646,6 +766,7 @@ void Owner::changeOwnerInfo(Staff *staff){
             std::cin >> ch;
         }while(ch != 'N' && ch != 'Y');
         saveStaffDetails();
+        system("cls");
     }while(ch == 'Y');
     saveStaffDetails();
 }
@@ -668,7 +789,7 @@ void Owner::removeStaff(){
             std::cout << "\nTo close this window press \"N\"\n";
             std::cin >> s;
         }while(s != 'Y' && s != 'N' && s != 'T');
-
+		system("cls");
         switch(s){
             case 'Y':
                 staffData.clear();
@@ -681,7 +802,6 @@ void Owner::removeStaff(){
                 changeOwnerInfo(&staffData[0]);
                 break;
             case 'N':
-                std::cout << "\nCLOSE WINDOW\n";///////I PUT RETURN SO CHK
                 break;
         }
         return;
@@ -702,13 +822,16 @@ void Owner::removeStaff(){
 }
 
 void Owner::userInputFunc(){
+	system("cls");
     Date date;
 
     std::string fullName;
     std::string userName;
     std::string position = "Owner";
     std::string password;
-
+    
+    getchar();
+	std::cout << "\nADDING NEW STAFF DETAILS\n";
     enterFName(&fullName);
     enterDate(&date);
     enterPos(&position);
@@ -722,7 +845,6 @@ void Owner::userInputFunc(){
 }
 
 void Owner::enterFName(std::string *fullName){
-    getchar();
     std::cout << "\nEnter fullname : ";
     std::getline(std::cin, *fullName);
 }
@@ -861,7 +983,7 @@ void LocalSupply::GetData(){
     //     std::cout<<"Amount :  ";
     //     while (!(std::cin >> amount)){
     //         std::cin.clear(); // clear the fail bit
-    //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+    //         std::cin.ignore(100, '\n'); // ignore the invalid entry
     //         std::cout << "Please Enter a valid value:  ";
     //     }
     // }while(amount < 0);
@@ -869,17 +991,17 @@ void LocalSupply::GetData(){
         std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         while (!(std::cin >> date.day)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
         while (!(std::cin >> date.month)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
         while (!(std::cin >> date.year)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
     }while(date.day<1||date.day>30||date.month<1||date.month>12||date.year<1940||date.year>2200);
@@ -891,17 +1013,17 @@ void LocalSupply::GetData(){
         std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
         while (!(std::cin >> departureDate.day)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
         }
         while (!(std::cin >> departureDate.month)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
         }
         while (!(std::cin >> departureDate.year)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
         }
     }while(departureDate.day<1||departureDate.day>30||departureDate.month<1||departureDate.month>12||departureDate.year<1940||departureDate.year>2200);
@@ -911,17 +1033,17 @@ void LocalSupply::GetData(){
                 std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
                 while (!(std::cin >> departureDate.day)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
                 }
                 while (!(std::cin >> departureDate.month)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
                 }
                 while (!(std::cin >> departureDate.year)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
                 }
             }while(departureDate.day<1||departureDate.day>30||departureDate.month<1||departureDate.month>12||departureDate.year<1940||departureDate.year>2200);
@@ -980,17 +1102,17 @@ void InternationalSupply::GetData(){
         std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         while (!(std::cin >> date.day)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
         while (!(std::cin >> date.month)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
         while (!(std::cin >> date.year)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
     }while(date.day<1||date.day>30||date.month<1||date.month>12||date.year<1940||date.year>2200);
@@ -1002,17 +1124,17 @@ void InternationalSupply::GetData(){
         std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
         while (!(std::cin >> arrivalDate.day)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
         }
         while (!(std::cin >> arrivalDate.month)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
         }
         while (!(std::cin >> arrivalDate.year)){
             std::cin.clear(); // clear the fail bit
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
             std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
         }
     }while(arrivalDate.day<1||arrivalDate.day>30||arrivalDate.month<1||arrivalDate.month>12||arrivalDate.year<1940||arrivalDate.year>2200);
@@ -1022,17 +1144,17 @@ void InternationalSupply::GetData(){
                 std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
                 while (!(std::cin >> arrivalDate.day)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
                 }
                 while (!(std::cin >> arrivalDate.month)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
                 }
                 while (!(std::cin >> arrivalDate.year)){
                     std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
                     std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
                 }
             }while(arrivalDate.day<1||arrivalDate.day>30||arrivalDate.month<1||arrivalDate.month>12||arrivalDate.year<1940||arrivalDate.year>2200);
@@ -1040,7 +1162,7 @@ void InternationalSupply::GetData(){
     std::cout<<"Ship number :  ";	
     while (!(std::cin >> no)){
         std::cin.clear(); // clear the fail bit
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // ignore the invalid entry
+        std::cin.ignore(100, '\n'); // ignore the invalid entry
         std::cout << "Please Enter a valid value:  ";
     }
 	InternationalSupply internationalSupply(name, amount, date, "Pending", country, arrivalDate, no);
@@ -1061,6 +1183,7 @@ InternationalSupply::~InternationalSupply(){}
 
 int displayAllFunctions(char pos){
     int j,i = 0;
+    system("cls");
     std::cout << "Select a function to perform\n\n";
     switch(pos){
         case 'O':
@@ -1082,8 +1205,13 @@ int displayAllFunctions(char pos){
     }
     do{
         std::cout << "\n Enter appropiate no : ";
-        std::cin >> j;
-    }while(j <= 0 && j > i);
+        while (!(std::cin >> j)){
+            std::cin.clear(); // clear the fail bit
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout << "\n Enter appropiate no : ";
+        }
+    }while(j < 1 || j > i);
+    system("cls");
     return j;
 }
 
@@ -1105,7 +1233,7 @@ void manageOwner(char pos, Owner *owner){
                 (*owner).removeStaff();
                 break;
             case 3:
-                (*owner).stockIncrement();
+                (*owner).addNewItemToStock();
                 break;
             case 4:
                 (*owner).stockDecrement();
@@ -1117,7 +1245,7 @@ void manageOwner(char pos, Owner *owner){
                 (*owner).makeTransaction((*owner).getFullName());
                 break;
             case 8:
-                exit(0);
+            	save_and_exit();
         }
     }while(i != 7);
 }
@@ -1134,7 +1262,7 @@ void manageManager(char pos, Manager *manager){
         i = displayAllFunctions(pos);
         switch(i){
             case 1:
-                (*manager).stockIncrement();
+                (*manager).addNewItemToStock();
                 break;
             case 2:
                 (*manager).stockDecrement();
@@ -1146,7 +1274,7 @@ void manageManager(char pos, Manager *manager){
                 (*manager).makeTransaction((*manager).getFullName());
                 break;
             case 6:
-                exit(0);
+            	save_and_exit();
         }
     }while(i != 5);
 }
@@ -1167,7 +1295,7 @@ void manageCashier(char pos, Cashier *cashier){
                 (*cashier).makeTransaction((*cashier).getFullName());
                 break;
             case 3:
-                exit(0);
+            	save_and_exit();
         }
     }while(i != 2);
 }
@@ -1187,7 +1315,7 @@ void manageFloorWorker(char pos, FloorWorker *floorWorker){
                 (*floorWorker).stockIncrement();
                 break;
             case 3:
-                exit(0);
+            	save_and_exit();
         }
     }while(i != 2);
 }
@@ -1303,6 +1431,35 @@ void retrieveSupplyDetails(){
     }
 }
 
+void retrieveTransactionDetails(){
+    std::string customerName, cashierName, itemName;
+    int no;
+    std::ifstream file("transactionData.txt");
+    int i = 0;
+    if(file.is_open()){
+        while(!file.eof()){
+            if(i == 0){
+                getline(file, cashierName);
+            }
+            else if(i == 1){
+                getline(file, customerName);
+            }
+            else if(i == 2){
+                getline(file, itemName);
+            }
+            else if(i == 3){
+                file >> no; 
+            }
+            else{
+                Transaction transaction(cashierName, customerName, itemName, no);
+                transactionDetails.emplace_back(transaction);
+                i = -1;
+            }
+            i++;
+           }
+    }
+}
+
 void saveStaffDetails(){
     std::ofstream file;
     file.open("staffData.txt");
@@ -1328,7 +1485,7 @@ void logIn(){
             std::cout << "Incorrect user credential\n";
         }
     }while(userCredentialsMap[userN] != passW);
-    //system cls
+    system("cls");
     std::cout << "\nWelcome back, " << userN << "\n\n";
     char pos = staffPositionMap[userN][0];
 
@@ -1349,18 +1506,20 @@ void logIn(){
 }
 
 int main(){
-    // retrieveStaffDetails();
-    // retrieveSupplyDetails();
+    retrieveStaffDetails();
+    retrieveSupplyDetails();
+    retrieveTransactionDetails();
     initialize_data();
-    // add_or_remove_stock(1); //add num items
-     add_or_remove_stock(0); //remove num items
-    // add_new_item(select_category());         //add new item
-    // logIn();
+//    Cashier cashier;
+//    cashier.stockDecrement();
+//    FloorWorker floorworker;
+//    floorworker.stockIncrement();
+    
+     logIn();
     //////STOCK UP VS NEW STOCK UP
     // LocalSupply localSupply;
     // localSupply.GetData();
     // InternationalSupply internationalSupply;
     // internationalSupply.GetData();
-    save_and_exit();
     return 0;
 }
