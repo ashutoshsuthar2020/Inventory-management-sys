@@ -4,8 +4,7 @@
 #include <fstream>
 #include <unordered_map>
 
-//DONT FORCE EXIT
-//CHANGE FARM.FAC TO LINE STIRING****
+//DONT FORCE EXIT//PUT PRICCCCCCCCCCCCEEx
 
 struct Date{
     int day;
@@ -50,6 +49,17 @@ void retrieveStaffDetails();
 void saveStaffDetails();
 void saveSupplyDetails();
 void supplyEntry();
+std::string enterFN();
+Date enterDate();
+std::string enterPos();
+std::string enterUN();
+std::string enterPW();
+std::string enterN();
+std::string enterAM();
+Date enterAD();
+std::string enterOrigin(std::string str);
+Date enterDD(std::string str1, std::string str2 , Date date);
+    
 
 class Item{
     private:
@@ -181,19 +191,19 @@ int* Produce::return_pointer_number_of_item(){
 
 Produce::~Produce(){}
 
-class Bakery_frozen_diary_snaks_bevarages_health_condiments:public Produce,public Brand{
+class Bakery_frozen_diary_snacks_beverages_health_condiments:public Produce,public Brand{
 	public:
-        Bakery_frozen_diary_snaks_bevarages_health_condiments();
-        Bakery_frozen_diary_snaks_bevarages_health_condiments(std::string a,float b,float c,int d,std::string e,std::string f);
-        ~Bakery_frozen_diary_snaks_bevarages_health_condiments();
+        Bakery_frozen_diary_snacks_beverages_health_condiments();
+        Bakery_frozen_diary_snacks_beverages_health_condiments(std::string a,float b,float c,int d,std::string e,std::string f);
+        ~Bakery_frozen_diary_snacks_beverages_health_condiments();
 };
 
-Bakery_frozen_diary_snaks_bevarages_health_condiments::Bakery_frozen_diary_snaks_bevarages_health_condiments():Produce(),Brand(){}
+Bakery_frozen_diary_snacks_beverages_health_condiments::Bakery_frozen_diary_snacks_beverages_health_condiments():Produce(),Brand(){}
 
-Bakery_frozen_diary_snaks_bevarages_health_condiments::Bakery_frozen_diary_snaks_bevarages_health_condiments(std::string a,float b,float c,int d,std::string e,std::string f):
+Bakery_frozen_diary_snacks_beverages_health_condiments::Bakery_frozen_diary_snacks_beverages_health_condiments(std::string a,float b,float c,int d,std::string e,std::string f):
         Produce(a,b,c,d),Brand(e,f){}
 
-Bakery_frozen_diary_snaks_bevarages_health_condiments::~Bakery_frozen_diary_snaks_bevarages_health_condiments(){};
+Bakery_frozen_diary_snacks_beverages_health_condiments::~Bakery_frozen_diary_snacks_beverages_health_condiments(){};
 
 class Meat_seafood:public Item{
     private:
@@ -245,9 +255,9 @@ Grain::~Grain(){};
 std::vector<Produce> data_produce;
 std::vector<Meat_seafood>data_meat_seafood;
 std::vector<Grain>data_grain;
-std::vector<Bakery_frozen_diary_snaks_bevarages_health_condiments>data_bakery_product,data_frozen_product,data_diary_product,data_snaks_and_sweets,
+std::vector<Bakery_frozen_diary_snacks_beverages_health_condiments>data_bakery_product,data_frozen_product,data_diary_product,data_snaks_and_sweets,
                 data_bevarages,data_health_and_beauty,data_condiments_and_spices;
-std::vector<Bakery_frozen_diary_snaks_bevarages_health_condiments>* vector_pointer[]={&data_bakery_product,&data_frozen_product,&data_diary_product,
+std::vector<Bakery_frozen_diary_snacks_beverages_health_condiments>* vector_pointer[]={&data_bakery_product,&data_frozen_product,&data_diary_product,
                 &data_snaks_and_sweets,&data_bevarages,&data_health_and_beauty,&data_condiments_and_spices};
 
 std::string file_name[]={"file_bakery_product.txt","file_frozen_product.txt","file_diary_product.txt","file_snaks_and_sweets.txt","file_bevarages.txt",
@@ -275,9 +285,9 @@ int select_category(){
     return int(Category)-96;
 }
 
-bool add_or_remove_stock(int x, Transaction *transaction = NULL){
+int add_or_remove_stock(int x, Transaction *transaction = NULL){
     int Category =select_category();
-    int i_no,add_or_get,i=0;
+    int i_no,add_or_get, price,i=0;
     std::cout<<"List of Items";
     change_Category[Category-1]=true;
 
@@ -307,12 +317,13 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            std::cout << "Enter a suitbale item number : ";
 	        }
 	        if(i_no == 0){
-	        	return false;
+	        	return 0;
 			}
     	}while (0 > i_no || i < i_no);
 	}
     
     else{
+    	std::cout << "\n**Press 0 to go back\n";
 	    do{
 	        std::cout << "\nSelect Item (No. within range) : ";
 	        while (!(std::cin >> i_no)){
@@ -320,6 +331,9 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            std::cin.ignore(100, '\n'); // ignore the invalid entry
 	            std::cout << "Enter a suitbale item number : ";
 	        }
+	        if(i_no == 0){
+	        	return 0;
+			}
 	    }while (0 > i_no || i < i_no);
 	}
     bool underFlow;
@@ -342,6 +356,7 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            *(data_produce[i_no-1].return_pointer_number_of_item()) -=add_or_get;
 	            if(transaction){
 	            	(*transaction).items.emplace_back(std::make_pair(data_produce[i_no-1].return_item_name(), add_or_get));
+	            	price = data_produce[i_no-1].return_final_price();
 				}
 	        }
 	        else{
@@ -359,6 +374,7 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            *(data_meat_seafood[i_no-1].return_pointer_weight_of_item()) -=add_or_get;
 	            if(transaction){
 	            	(*transaction).items.emplace_back(std::make_pair(data_meat_seafood[i_no-1].return_item_name(), add_or_get));
+	            	price = data_meat_seafood[i_no-1].return_final_price();
 				}
 	        }
 	        else{
@@ -376,6 +392,7 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            *(data_grain[i_no-1].return_pointer_weight_of_item()) -=add_or_get;
 	            if(transaction){
 	            	(*transaction).items.emplace_back(std::make_pair(data_grain[i_no-1].return_item_name(), add_or_get));
+	            	price = data_grain[i_no-1].return_final_price();
 				}
 	        }
 	        else{
@@ -393,6 +410,7 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	            *((*vector_pointer[Category-4])[i_no-1].return_pointer_number_of_item()) -=add_or_get;
 	            if(transaction){
 	            	(*transaction).items.emplace_back(std::make_pair((*vector_pointer[Category-4])[i_no-1].return_item_name(), add_or_get));
+	            	price = (*vector_pointer[Category-4])[i_no-1].return_final_price();
 				}
 	        }	
 	        else{
@@ -410,7 +428,7 @@ bool add_or_remove_stock(int x, Transaction *transaction = NULL){
 	    getchar();
 	    getchar();
 	}while(underFlow);
-	return true;
+	return (add_or_get * price);
 }
 
 void add_new_item(int Category){
@@ -421,7 +439,7 @@ void add_new_item(int Category){
         if(Category==1)      data_produce.push_back(Produce());
         else if(Category==2) data_meat_seafood.push_back(Meat_seafood());
         else if(Category==3) data_grain.push_back(Grain());
-        else                 (*vector_pointer[Category-4]).push_back(Bakery_frozen_diary_snaks_bevarages_health_condiments());
+        else                 (*vector_pointer[Category-4]).push_back(Bakery_frozen_diary_snacks_beverages_health_condiments());
 
         do{
         std::cout<<"ENTER N/n to add a new item\nENTER E/e TO EXIT\n";
@@ -580,7 +598,7 @@ void initialize_data(){
 				getline(file, dummy);
 			}
 			else{
-				(*vector_pointer[j]).push_back(Bakery_frozen_diary_snaks_bevarages_health_condiments (item_name,retail_price,discount,number_of_item,brand_name,brand_region));
+				(*vector_pointer[j]).push_back(Bakery_frozen_diary_snacks_beverages_health_condiments (item_name,retail_price,discount,number_of_item,brand_name,brand_region));
 				i = -1;
 			}
 			i++;
@@ -610,7 +628,6 @@ class Supply {
     public:
         Supply() {}
         Supply( std::string name, std::string amount, Date d, std::string s):itemName(name), quantity(amount), dateOfArrival(d),status(s) {}
-        void SetData(std::string name, std::string amount, Date date);
         std::string getQuantity() {return quantity;}
         Date getDateOfArrival() {return dateOfArrival;}
         std::string getItemName() {return itemName;}
@@ -618,12 +635,6 @@ class Supply {
         void setStatus(std::string s){ status = s;}
         ~Supply(){}
 };
-
-void Supply::SetData(std::string name, std::string amount,Date date){
-	itemName = name;
-	quantity = amount;
-	dateOfArrival = date;
-}
 
 
 class LocalSupply: public Supply{
@@ -635,7 +646,7 @@ class LocalSupply: public Supply{
     public:
         LocalSupply();
         LocalSupply(std::string name , std::string amount, Date d , std::string s, std::string origin, Date departureDate, std::string v, std::string regNo);
-        void GetData();
+        void getData();
         std::string getNameOfOrigin() {return nameOfOrigin;}
         Date getDateOfDeparture() {return dateOfDeparture;}
         std::string getVehicle() {return vehicle;}
@@ -648,83 +659,17 @@ LocalSupply::LocalSupply() {}
 LocalSupply::LocalSupply(std::string name , std::string amount, Date d , std::string s, std::string origin, Date departureDate, std::string v, std::string regNo): 
                 Supply(name, amount, d,s ),nameOfOrigin(origin), dateOfDeparture(departureDate), vehicle(v), vehicleRegNo(regNo){}
 	
-void LocalSupply::GetData(){
+void LocalSupply::getData(){
 	std::string name, amount, origin, v, regNo;
 	Date date, departureDate;
-    getchar();
-    system("cls");
-	std::cout<<"--- Enter the details of the item ---\n";
-	std::cout<<"Name :  ";
-	std::getline(std::cin, name);
-    // do{
-         std::cout<<"Amount :  ";
-         while (!(std::cin >> amount)){
-             std::cin.clear(); // clear the fail bit
-             std::cin.ignore(100, '\n'); // ignore the invalid entry
-             std::cout << "Please Enter a valid value:  ";
-         }
-    // }while(amount < 0);
-    do{
-        std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
-        while (!(std::cin >> date.day)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
-        }
-        while (!(std::cin >> date.month)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
-        }
-        while (!(std::cin >> date.year)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
-        }
-    }while(date.day<1||date.day>30||date.month<1||date.month>12||date.year<1940||date.year>2200);
+	bool valChk;
     
-    getchar();
-	std::cout<<"Name of origin(Farm/Factory) :  ";
-	std::getline(std::cin, origin);
-    do{
-        std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-        while (!(std::cin >> departureDate.day)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-        }
-        while (!(std::cin >> departureDate.month)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-        }
-        while (!(std::cin >> departureDate.year)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-        }
-    }while(departureDate.day<1||departureDate.day>30||departureDate.month<1||departureDate.month>12||departureDate.year<1940||departureDate.year>2200);
-    while((departureDate.year * 365 + departureDate.month * 30 + departureDate.day) > (date.year * 365 + date.month * 30 + date.day)){
-        std::cout << "\nDATE OF DEPARTURE FROM FARM/FACTORY CANT BE LATER THAN DATE OF ARRIVAL AT SUPERMARKET\n";
-            do{
-                std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-                while (!(std::cin >> departureDate.day)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-                }
-                while (!(std::cin >> departureDate.month)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-                }
-                while (!(std::cin >> departureDate.year)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of departure from the Farm/Factory(dd mm yy) :  ";
-                }
-            }while(departureDate.day<1||departureDate.day>30||departureDate.month<1||departureDate.month>12||departureDate.year<1940||departureDate.year>2200);
-    }
+    name = enterN();
+    amount = enterAM();
+    date = enterAD();
+    origin = enterOrigin("Name of origin(Farm/Factory) :  ");
+	departureDate = enterDD("Date of departure from the Farm/Factory(dd mm yy) :  ", "\nDATE OF DEPARTURE FROM FARM/FACTORY CANT BE LATER THAN DATE OF ARRIVAL AT SUPERMARKET\n", date);
+    
     getchar();
     do{
         std::cout<<"Vehicle used for the transportation(Large truck/Small truck/Van) :  ";			
@@ -735,7 +680,7 @@ void LocalSupply::GetData(){
     LocalSupply localSupply(name, amount, date, "Pending", origin, departureDate, v, regNo);
     localSupplyDataPending.emplace_back(localSupply);
         
-	std::cout << "\nSupply entry added. press enter to continue\n";
+	std::cout << "\nSupply entry added.\n";
     system("pause");
 }
 
@@ -749,7 +694,7 @@ class InternationalSupply: public Supply{
     public:
         InternationalSupply();
         InternationalSupply(std::string name, std::string amount, Date d, std::string s, std::string country, Date arrivalDate, int no);
-        void GetData();
+        void getData();
         std::string getcountryOfOrigin() {return countryOfOrigin;}
         Date getArrivalDateAtHarbour() {return arrivalDateAtHarbour;}
         int getShipNo() {return shipNo;}
@@ -761,17 +706,69 @@ InternationalSupply::InternationalSupply() {}
 InternationalSupply::InternationalSupply(std::string name, std::string amount, Date d, std::string s, std::string country, Date arrivalDate, int no): 
                     Supply(name, amount, d,s ),countryOfOrigin(country), arrivalDateAtHarbour(arrivalDate), shipNo(no){}
 
-void InternationalSupply::GetData(){
+void InternationalSupply::getData(){
 	std::string name, amount, country;
 	Date date, arrivalDate;
 	int no;
-    getchar();
+    
+    name = enterN();
+    amount = enterAM();
+    date = enterAD();
+    country = enterOrigin("Country of origin :  ");
+    arrivalDate = enterDD("Date of arrival at the local harbour(dd mm yy) :  ", "\nDATE OF ARRIVAL AT HARBOUR CANT BE LATER THAN DATE OF ARRIVAL AT SUPERMARKET\n", date);
+	
+    std::cout<<"Ship number :  ";	
+    while (!(std::cin >> no)){
+        std::cin.clear(); // clear the fail bit
+        std::cin.ignore(100, '\n'); // ignore the invalid entry
+        std::cout << "Please Enter a valid value:  ";
+    }
+	InternationalSupply internationalSupply(name, amount, date, "Pending", country, arrivalDate, no);
+    internationalSupplyDataPending.emplace_back(internationalSupply);
+    
+    std::cout << "\nSupply entry added.\n";
+    system("pause");
+}
+
+InternationalSupply::~InternationalSupply(){}
+
+std::string enterN(){
+	std::string name;
+	getchar();
     system("cls");
 	std::cout<<"--- Enter the details of the item ---\n";
 	std::cout<<"Name :  ";
 	std::getline(std::cin, name);
-	std::cout<<"Amount :  ";
-	std::cin>>amount;
+    return name;
+}
+std::string enterAM(){
+	std::string amount;
+	bool valChk;
+	do{
+    	valChk = false;
+		std::cout<<"Amount (if Kg/g put it next to quantity like, xxKg / xxg):  ";
+		std::cin >> amount;
+		
+		for(int i = 0; i < amount.length(); i++){
+			if(amount.at(i) >= '0' && amount.at(i) <='9'){
+			}
+			else if(amount.at(i) == 'g' && i == (amount.length() - 1)){
+			}
+			else if(amount.at(i) == 'K' && i ==(amount.length() - 2)){
+			}
+			else{
+				valChk = true;
+			}
+		}
+		if(valChk){
+			std::cout << "\nPut it in correct format\n";
+		}
+     }while(valChk);
+     return amount;
+}
+
+Date enterAD(){ 
+	Date date;
 	do{
         std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         while (!(std::cin >> date.day)){
@@ -790,68 +787,64 @@ void InternationalSupply::GetData(){
             std::cout<<"Date of arrival at the Supermarket(dd mm yy) :  ";
         }
     }while(date.day<1||date.day>30||date.month<1||date.month>12||date.year<1940||date.year>2200);
-    
-    getchar();
-	std::cout<<"Country of origin :  ";
-	std::getline(std::cin, country);
-	do{
-        std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-        while (!(std::cin >> arrivalDate.day)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-        }
-        while (!(std::cin >> arrivalDate.month)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-        }
-        while (!(std::cin >> arrivalDate.year)){
-            std::cin.clear(); // clear the fail bit
-            std::cin.ignore(100, '\n'); // ignore the invalid entry
-            std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-        }
-    }while(arrivalDate.day<1||arrivalDate.day>30||arrivalDate.month<1||arrivalDate.month>12||arrivalDate.year<1940||arrivalDate.year>2200);
-    while((arrivalDate.year * 365 + arrivalDate.month * 30 + arrivalDate.day) > (date.year * 365 + date.month * 30 + date.day)){
-        std::cout << "\nDATE OF ARRIVAL AT HARBOUR CANT BE LATER THAN DATE OF ARRIVAL AT SUPERMARKET\n";
-            do{
-                std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-                while (!(std::cin >> arrivalDate.day)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-                }
-                while (!(std::cin >> arrivalDate.month)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-                }
-                while (!(std::cin >> arrivalDate.year)){
-                    std::cin.clear(); // clear the fail bit
-                    std::cin.ignore(100, '\n'); // ignore the invalid entry
-                    std::cout<<"Date of arrival at the local harbour(dd mm yy) :  ";
-                }
-            }while(arrivalDate.day<1||arrivalDate.day>30||arrivalDate.month<1||arrivalDate.month>12||arrivalDate.year<1940||arrivalDate.year>2200);
-    }
-    std::cout<<"Ship number :  ";	
-    while (!(std::cin >> no)){
-        std::cin.clear(); // clear the fail bit
-        std::cin.ignore(100, '\n'); // ignore the invalid entry
-        std::cout << "Please Enter a valid value:  ";
-    }
-	InternationalSupply internationalSupply(name, amount, date, "Pending", country, arrivalDate, no);
-    internationalSupplyDataPending.emplace_back(internationalSupply);
-    
-    std::cout << "\nSupply entry added\n";
-    system("pause");
+    return date;
 }
 
-InternationalSupply::~InternationalSupply(){}
+std::string enterOrigin(std::string str){
+	getchar();
+	std::string origin;
+	std::cout<<str;
+	std::getline(std::cin, origin);
+	return origin;
+}
+
+Date enterDD(std::string str1, std::string str2, Date date){
+	Date date2;
+	do{
+        std::cout<< str1;
+        while (!(std::cin >> date2.day)){
+            std::cin.clear(); // clear the fail bit
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<< str1;
+        }
+        while (!(std::cin >> date2.month)){
+            std::cin.clear(); // clear the fail bit
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<< str1;
+        }
+        while (!(std::cin >> date2.year)){
+            std::cin.clear(); // clear the fail bit
+            std::cin.ignore(100, '\n'); // ignore the invalid entry
+            std::cout<< str1;
+        }
+    }while(date2.day<1||date2.day>30||date2.month<1||date2.month>12||date2.year<1940||date2.year>2200);
+    while((date2.year * 365 + date2.month * 30 + date2.day) > (date.year * 365 + date.month * 30 + date.day)){
+        std::cout << str2;
+            do{
+                std::cout<< str1;
+                while (!(std::cin >> date2.day)){
+                    std::cin.clear(); // clear the fail bit
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
+                    std::cout<< str1;
+                }
+                while (!(std::cin >> date2.month)){
+                    std::cin.clear(); // clear the fail bit
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
+                    std::cout<< str1;
+                }
+                while (!(std::cin >> date2.year)){
+                    std::cin.clear(); // clear the fail bit
+                    std::cin.ignore(100, '\n'); // ignore the invalid entry
+                    std::cout<< str1;
+                }
+            }while(date2.day<1||date2.day>30||date2.month<1||date2.month>12||date2.year<1940||date2.year>2200);
+    }
+    return date2;
+}
 
 class Staff{
     private:
-        bool static isRootCreated;                         //owner will be root
-        static int noOfStaffs;
+        static bool isRootCreated;                         //owner will be root
         std::string userName;
         std::string password;
         std::string fullName;
@@ -861,13 +854,22 @@ class Staff{
         Staff();
         Staff(std::string fullName, std::string position, Date date, std::string userName, std::string password);
         Staff(std::string fullName, std::string position, std::string userName);
+        static bool getIsRootCreated();
+        static void setIsRootCreated();
+        std::string getUserName();
+        void setUserName();
+        std::string getPassword();
+        void setPassword();
         std::string getFullName();
-        friend class Owner;
-        friend class Manager;
-        friend void retrieveStaffDetails();
-        friend void saveStaffDetails();
+        void setFullName();
+        std::string getPosition();
+        void setPosition();
+        Date getDate();   
+		void setDate();     
         ~Staff() {};
 };
+
+bool Staff::isRootCreated = false;
 
 Staff::Staff() {}
 Staff::Staff(std::string fullName, std::string position, Date date, std::string userName, std::string password): 
@@ -875,12 +877,53 @@ Staff::Staff(std::string fullName, std::string position, Date date, std::string 
 
 Staff::Staff(std::string fullName, std::string position, std::string userName): userName(userName), fullName(fullName), date(date) {}
 
+bool Staff::getIsRootCreated(){
+	return isRootCreated;
+}
+
+void Staff::setIsRootCreated(){
+	isRootCreated = true;
+}
+
 std::string Staff::getFullName(){
     return fullName;
 }
 
-int Staff::noOfStaffs = 0;
-bool Staff::isRootCreated = false;
+void Staff::setFullName(){
+	fullName = enterFN();
+}
+
+std::string Staff::getUserName(){
+	return userName;
+}
+
+void Staff::setUserName(){
+	userName = enterUN();
+}
+
+std::string Staff::getPassword(){
+	return password;
+}
+
+void Staff::setPassword(){
+	password = enterPW();
+}
+
+std::string Staff::getPosition(){
+	return position;
+}
+
+void Staff::setPosition(){
+	position = enterPos();
+}
+
+Date Staff::getDate(){
+	return date;
+}
+
+void Staff::setDate(){
+	date = enterDate();
+}
 
 class FloorWorker: public virtual Staff{
     public:
@@ -923,9 +966,9 @@ void FloorWorker::stockIncrement(bool isFloorWorker){
 	}
 	
 	for(j; j < internationalSupplyDataPending.size(); j++){
-			std::cout << k++ << "\t"<< internationalSupplyDataPending[j].getItemName() << "\t\t" <<internationalSupplyDataPending[j].getQuantity() << "\t     " << internationalSupplyDataPending[j].getDateOfArrival().day << "-" 
+			std::cout << k++ << "\t"<< internationalSupplyDataPending[j].getItemName() << "\t\t\t" <<internationalSupplyDataPending[j].getQuantity() << "\t     " << internationalSupplyDataPending[j].getDateOfArrival().day << "-" 
 	        << internationalSupplyDataPending[j].getDateOfArrival().month  << "-" << internationalSupplyDataPending[j].getDateOfArrival().year << "\t   " <<  internationalSupplyDataPending[j].getStatus() << "\t     " 
-	        << internationalSupplyDataPending[j].getcountryOfOrigin() << "   \t" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().day << "-" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().month << "-" 
+	        << internationalSupplyDataPending[j].getcountryOfOrigin() << "   \t        " << internationalSupplyDataPending[j].getArrivalDateAtHarbour().day << "-" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().month << "-" 
 	        << internationalSupplyDataPending[j].getArrivalDateAtHarbour().year << "\t    " << internationalSupplyDataPending[j].getShipNo() << "\n";
 	}
 	
@@ -953,9 +996,9 @@ void FloorWorker::stockIncrement(bool isFloorWorker){
     if(i < n){
     	std::cout << "Item name\t\tQuantity  Date of Arrival  Status\tCountry of Origin\t Arrival Date at Harbour  Ship No\n";
     	j = n - i - 1;
-    	std::cout << internationalSupplyDataPending[j].getItemName() << "\t\t" <<internationalSupplyDataPending[j].getQuantity() << "\t     " << internationalSupplyDataPending[j].getDateOfArrival().day << "-" 
+    	std::cout << internationalSupplyDataPending[j].getItemName() << "\t\t\t" <<internationalSupplyDataPending[j].getQuantity() << "\t     " << internationalSupplyDataPending[j].getDateOfArrival().day << "-" 
 	    << internationalSupplyDataPending[j].getDateOfArrival().month  << "-" << internationalSupplyDataPending[j].getDateOfArrival().year << "\t   " <<  internationalSupplyDataPending[j].getStatus() << "\t     " 
-	    << internationalSupplyDataPending[j].getcountryOfOrigin() << "   \t" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().day << "-" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().month << "-" 
+	    << internationalSupplyDataPending[j].getcountryOfOrigin() << "   \t        " << internationalSupplyDataPending[j].getArrivalDateAtHarbour().day << "-" << internationalSupplyDataPending[j].getArrivalDateAtHarbour().month << "-" 
 	    << internationalSupplyDataPending[j].getArrivalDateAtHarbour().year << "\t    " << internationalSupplyDataPending[j].getShipNo() << "\n";
 	}
 	else{
@@ -971,16 +1014,16 @@ void FloorWorker::stockIncrement(bool isFloorWorker){
 		std::cout << localSupplyDataPending[j].getVehicleRegNo() << "\n";
 	}
 	
-    bool chk = false;
+    int chk = 0;
     if(isFloorWorker){
 		chk = add_or_remove_stock(1); //add num items
 	}
 	else{
 		add_new_item(select_category());         //add new item
-		chk = true;
+		chk = 1;
 	}
 	
-	if(chk){
+	if(chk != 0){
 		if(i < n){
 			internationalSupplyDataPending[n - i - 1].setStatus("Approved");
 			internationalSupplyDataApproved.emplace_back(internationalSupplyDataPending[n - i - 1]);
@@ -1015,38 +1058,40 @@ void Cashier::stockDecrement(){
 
 void Cashier::makeTransaction(std::string fullName){
 	Transaction transaction;
+	float cash;
 	char c;
 	int n = 0;
 	do{
 		do{	
 			system("cls");
 			n++;
-			add_or_remove_stock(0, &transaction); //remove num items
+			cash += add_or_remove_stock(0, &transaction); //remove num items
 			std::cout << "\nMake another transaction to this person (Y/N) : ";
 			std::cin >> c;
 		}while(c != 'N' && c != 'Y');
 	}while(c == 'Y');
     getchar();
     std::string customerName;
-    std::cout << "\nEnter customer name : ";
-    std::getline(std::cin, customerName);
-    //fullName
-
-    
-    transaction.cashierName = fullName;
-    transaction.customerName = customerName;
-    transactionDetails.emplace_back(transaction);
-    
-    std::ofstream file;
-    file.open("transactionData.txt");
-    for(int i = 0; i < transactionDetails.size(); i++){
-    	for(int j = 0; j < n; j++){
-    		file << transactionDetails[i].cashierName << "\n" << transactionDetails[i].customerName << "\n" << transactionDetails[i].items[j].first << "\n"
-        	<< transactionDetails[i].items[j].second << "\n";
-		}
-    }
-    file.close();
-
+    if(cash != 0){
+	    std::cout << "\nEnter customer name : ";
+	    std::getline(std::cin, customerName);
+	    std::cout << "Total price : " << cash;
+		getchar();
+	    
+	    transaction.cashierName = fullName;
+	    transaction.customerName = customerName;
+	    transactionDetails.emplace_back(transaction);
+	    
+	    std::ofstream file;
+	    file.open("transactionData.txt");
+	    for(int i = 0; i < transactionDetails.size(); i++){
+	    	for(int j = 0; j < n; j++){
+	    		file << transactionDetails[i].cashierName << "\n" << transactionDetails[i].customerName << "\n" << transactionDetails[i].items[j].first << "\n"
+	        	<< transactionDetails[i].items[j].second << "\n";
+			}
+	    }
+	    file.close();
+	}
 }
 
 Cashier::~Cashier() {}
@@ -1068,9 +1113,12 @@ Manager::Manager(std::string fullName, std::string userName): Staff(fullName, "M
 void Manager::readStaffDetails(){
     getchar();
     std::cout << "\n\n Viewing Staff Data \n\n";
+    if(staffData.size() > 0){
+    	std::cout << "Full name\tPositon\t\tJoined Date\n";
+	}
     for(int i = 0; i < staffData.size(); i++){
-        std::cout << staffData[i].fullName << " " << staffData[i].position << " " << staffData[i].date.day << " "
-            << staffData[i].date.month << " " << staffData[i].date.year << "\n";
+        std::cout << staffData[i].getFullName() << "\t\t" << staffData[i].getPosition() << "\t\t" << staffData[i].getDate().day << "-"
+            << staffData[i].getDate().month << "-" << staffData[i].getDate().year << "\n";
     }
     std::cout << "\n\n End of Staff Data \n\nPress enter to go back";
     getchar();
@@ -1124,9 +1172,9 @@ void Manager::viewSupplyEntry(){
 	
 	for(int x = 0; x < iSupply.size(); x++){
 		for(j; j < iSupply[x].size(); j++){
-			std::cout << k++ << "\t"<< iSupply[x][j].getItemName() << "\t\t" <<iSupply[x][j].getQuantity() << "\t     " << iSupply[x][j].getDateOfArrival().day << "-" 
+			std::cout << k++ << "\t"<< iSupply[x][j].getItemName() << "\t\t\t" <<iSupply[x][j].getQuantity() << "\t     " << iSupply[x][j].getDateOfArrival().day << "-" 
 		    << iSupply[x][j].getDateOfArrival().month  << "-" << iSupply[x][j].getDateOfArrival().year << "\t   " <<  iSupply[x][j].getStatus() << "\t     " 
-		    << iSupply[x][j].getcountryOfOrigin() << "   \t" << iSupply[x][j].getArrivalDateAtHarbour().day << "-" << iSupply[x][j].getArrivalDateAtHarbour().month << "-" 
+		    << iSupply[x][j].getcountryOfOrigin() << "   \t        " << iSupply[x][j].getArrivalDateAtHarbour().day << "-" << iSupply[x][j].getArrivalDateAtHarbour().month << "-" 
 		    << iSupply[x][j].getArrivalDateAtHarbour().year << "\t    " << iSupply[x][j].getShipNo() << "\n";
 		}
 	}
@@ -1144,14 +1192,8 @@ class Owner: public Manager{
      public:
         Owner(std::string fullName, std::string userName);
         void addStaff(std::string userName, std::string password, std::string fullName, std::string position, Date date);
-        void changeOwnerInfo(Staff *staff);
         void removeStaff();
         void userInputFunc();
-        void enterFName(std::string *fullName);
-        void enterDate(Date *date);
-        void enterPos(std::string *position);
-        void enterUN(std::string *userName);
-        void enterPass(std::string *password);
         ~Owner();
 };
 
@@ -1159,11 +1201,10 @@ Owner::Owner(std::string fullName, std::string userName): Staff(fullName, "Owner
 
 void Owner::addStaff(std::string userName, std::string password, std::string fullName, std::string position, Date date){
     if(position == "Owner"){
-        isRootCreated = true;
+        setIsRootCreated();
     }
 
     Staff newStaff(fullName, position, date, userName, password);
-    noOfStaffs++;
     staffData.emplace_back(newStaff);
 
     userCredentialsMap[userName] = password;
@@ -1173,58 +1214,7 @@ void Owner::addStaff(std::string userName, std::string password, std::string ful
     getchar();
     system("cls");
     saveStaffDetails();
-}
-
-void Owner::changeOwnerInfo(Staff *staff){
-    std::string ans;
-    char ch;
-    do{
-        getchar();
-        do{
-            std::cout << "\nWhat info do you want to change from, " << (*staff).userName << "'s details ? (FULL NAME, POSITION, JOINED DATE, USERNAME, PASSWORD)\n";
-            std::getline(std::cin, ans);
-        }while(ans != "FULL NAME" && ans != "POSITION" && ans != "JOINED DATE" && ans != "USERNAME" && ans != "PASSWORD");
-        bool userChk = false;
-        switch(ans.at(3)){
-            case 'L':
-                std::cout << "\nCurrent full name : " <<  (*staff).fullName;
-                enterFName(&(*staff).fullName);
-                break;
-            case 'I':
-                if((*staff).position == "Owner"){
-                    std::cout << "\nYou can't change position of Owner\n";
-                    break;
-                }
-                std::cout << "\nCurrent position : " <<  (*staff).position;
-                enterPos(&(*staff).position);
-                break;
-            case 'N':
-                std::cout << "\nCurrent joined date : " <<  (*staff).date.day << "/" << (*staff).date.month << "/" << (*staff).date.year <<"\n" ;
-                enterDate(&(*staff).date);
-                break;
-            case 'R':
-                std::cout << "\nCurrent user name : " <<  (*staff).fullName;
-                enterFName(&(*staff).userName);
-                break;
-            case 'S':
-                std::string str;
-                do{
-                    std::cout << "\nEnter root(Owner) password to change " << (*staff).userName << "'s password :";
-                    std::cin >> str;
-                }while(userCredentialsMap[userName] != str);
-                enterPass(&(*staff).password);
-                break;
-        }
-
-        do{
-            std::cout << "\nDo you want to change another information of " << (*staff).userName << " ? (Y/N) :";
-            std::cin >> ch;
-        }while(ch != 'N' && ch != 'Y');
-        saveStaffDetails();
-        system("cls");
-    }while(ch == 'Y');
-    saveStaffDetails();
-}
+}	
 
 void Owner::removeStaff(){
     std::string username;
@@ -1234,13 +1224,12 @@ void Owner::removeStaff(){
         std::cout << "Enter username of staff that you want to delete :";
         std::cin >> username;
     }while(userCredentialsMap.find(username) == userCredentialsMap.end());
-    if(username == userName){
+    if(getUserName() == username){
         std::cout << "\nYou are trying to remove root(Owner) account. Which will cause deletion of all company data & quit the programme.\n";
         std::cout << "In case of owner has changed, you can change the owner information\n\n\n";
         char s;
         do{
             std::cout << "If you want to delete owner account press \"Y\"\n";
-            std::cout << "If you want to change owner account info press \"T\"\n";
             std::cout << "\nTo close this window press \"N\"\n";
             std::cin >> s;
         }while(s != 'Y' && s != 'N' && s != 'T');
@@ -1253,118 +1242,125 @@ void Owner::removeStaff(){
                 saveStaffDetails();
                 exit(0);
                 break;
-            case 'T':
-                changeOwnerInfo(&staffData[0]);
-                break;
             case 'N':
                 break;
         }
         return;
     }
     if(staffPositionMap.erase(username)){
-        for(int i = 0; i < noOfStaffs; i++){
-            if(staffData[i].userName == username){
+        for(int i = 0; i < staffData.size(); i++){
+            if(staffData[i].getUserName() == username){
                 staffData.erase(staffData.begin() + i);
             }
         }
         userCredentialsMap.erase(username);
-        noOfStaffs--;
         saveStaffDetails();
     }
     else{
         std::cout << "\nUser not found !!\n";
+        system("pause");
     }
 }
 
 void Owner::userInputFunc(){
-	system("cls");
     Date date;
 
     std::string fullName;
     std::string userName;
-    std::string position = "Owner";
+    std::string position;
     std::string password;
     
     getchar();
+    system("cls");
 	std::cout << "\nADDING NEW STAFF DETAILS\n";
-    enterFName(&fullName);
-    enterDate(&date);
-    enterPos(&position);
+    fullName = enterFN();
+    date = enterDate();
+    position = enterPos();
 
     std::cout << "\n\n..This one is for login process of user..\n\n";
 
-    enterUN(&userName);
-    enterPass(&password);
+    userName = enterUN();
+    password = enterPW();
 
     addStaff(userName, password, fullName, position, date);
 }
 
-void Owner::enterFName(std::string *fullName){
+Owner::~Owner() {}
+
+std::string enterFN(){
+	std::string fullName;
     std::cout << "\nEnter fullname : ";
-    std::getline(std::cin, *fullName);
+    std::getline(std::cin, fullName);
+    return fullName;
 }
 
-void Owner::enterDate(Date *date){
+Date enterDate(){
+	Date date;
     do{
         std::cout << "Enter joined date (put space between date, month & year like, dd mm yyyy format) : ";
-        std::cin >> (*date).day >> (*date).month >> (*date).year;
-    }while((*date).day <= 0 || (*date).day > 31 || (*date).month <= 0 || (*date).month > 12 || (*date).year <= 1940 || (*date).year > 2200);
+        std::cin >> date.day >> date.month >> date.year;
+    }while(date.day <= 0 || date.day > 31 || date.month <= 0 || date.month > 12 || date.year <= 1940 || date.year > 2200);
+    return date;
 }
 
-void Owner::enterPos(std::string *position){
-    if(Staff::isRootCreated){
+std::string enterPos(){
+	std::string position;
+    if(Staff::getIsRootCreated()){
         do{
             std::cout << "Positions in this business are,\n";
             std::cout << "\tManager\n\tCashier\n\tFloorWorker\n";
             std::cout << "Enter position (Use same naming convention) :";
-            std::cin >> *position;
-        }while(*position != "Manager" && *position != "Cashier" && *position != "FloorWorker");
+            std::cin >> position;
+        }while(position != "Manager" && position != "Cashier" && position != "FloorWorker");
+        return position;
     }
+    return ("Owner");
 }
 
-void Owner::enterUN(std::string *userName){
+std::string enterUN(){
     bool userChk;
+    std::string userName;
     do{
         userChk = false;
-        std::cout << "Enter username(NO SPACES) : ";
-        std::cin >> *userName;
+        std::cout << "\nEnter username(NO SPACES) : ";
+        std::cin >> userName;
 
-        if(!(userCredentialsMap.find(*userName) == userCredentialsMap.end())){
+        if(!(userCredentialsMap.find(userName) == userCredentialsMap.end())){
             userChk = true;
             std::cout << "username not available";
         }
     }while(userChk);
+    return userName;
 }
 
-void Owner::enterPass(std::string *password){
+std::string enterPW(){
     bool userChk;
-    std::string password2;
+    std::string password, password2;
     getchar();
     do{
         userChk = false;
         std::cout << "Password, \n* More than 6 characters \n* Must have an Uppercase letter \n* Must be alphanumeric \n" ;//make star when typing
         std::cout << "Enter password  : ";
-        std::getline(std::cin, *password);
+        std::getline(std::cin, password);
 
         bool capNotChk = true;
         bool alphaNumNotChk = true;
 
-        if((*password).length() < 6){
+        if(password.length() < 6){
             userChk = true;
         }
         else{
-            for(int i = 0; i < (*password).length(); i++){
-                if((*password).at(i) >= 'A' && (*password).at(i) <= 'Z'){
+            for(int i = 0; i < password.length(); i++){
+                if(password.at(i) >= 'A' && password.at(i) <= 'Z'){
                     capNotChk = false;
                 }
-                if((*password).at(i) >= '0' && (*password).at(i) <= '9'){
+                if(password.at(i) >= '0' && password.at(i) <= '9'){
                     alphaNumNotChk = false;
                 }
-                if((*password).at(i) == ' '){
+                if(password.at(i) == ' '){
                     alphaNumNotChk = false;
                 }
             }
-
             if(alphaNumNotChk || capNotChk){
                 userChk = true;
             }
@@ -1375,13 +1371,12 @@ void Owner::enterPass(std::string *password){
         std::cout << "Re-enter password : ";
         std::getline(std::cin, password2);
 
-        if(password2 != *password){
+        if(password2 != password){
             std::cout << "passwords dont match. ..";
         }
-    }while(password2 != *password);
+    }while(password2 != password);
+    return password;
 }
-
-Owner::~Owner() {}
 
 void supplyEntry(){
 	system("cls");
@@ -1394,11 +1389,11 @@ void supplyEntry(){
 	
 	if(str == "Local"){
 		LocalSupply localSupply;
-    	localSupply.GetData();
+    	localSupply.getData();
 	}
 	else{
 		InternationalSupply internationalSupply;
-    	internationalSupply.GetData();
+    	internationalSupply.getData();
 	}
 }
 
@@ -1662,7 +1657,6 @@ void cashierFunctions(char pos, std::string userN){
     Cashier cashier(fullNameMap[userN], userN);
     manageCashier(pos, &cashier);
     logIn();
-
 }
 
 void manageCashier(char pos, Cashier *cashier){
@@ -1778,16 +1772,13 @@ void retrieveStaffDetails(){
                 userCredentialsMap[userName] = password;
                 staffPositionMap[userName] = position;
                 fullNameMap[userName] = fullName;
-                Staff::noOfStaffs++;
                 i = -1;
+                Staff::setIsRootCreated();
             }
             i++;
            }
-        if(Staff::noOfStaffs > 0){
-            Staff::isRootCreated = true;
-        }
     }
-    if(!Staff::isRootCreated){
+    if(!Staff::getIsRootCreated()){
         Owner owner("dummy", "dummy");
         std::cout << "Looks like there is no root(Owner) in this system. Press Enter to create\n";
         owner.userInputFunc();
@@ -1900,8 +1891,8 @@ void saveStaffDetails(){
     std::ofstream file;
     file.open("staffData.txt");
     for(int i = 0; i < staffData.size(); i++){
-        file << staffData[i].fullName << "\n" << staffData[i].position << " " << staffData[i].date.day << " "
-             << staffData[i].date.month << " " << staffData[i].date.year << " " << staffData[i].userName << "\n" << staffData[i].password << '\n';
+        file << staffData[i].getFullName() << "\n" << staffData[i].getPosition() << " " << staffData[i].getDate().day << " "
+             << staffData[i].getDate().month << " " << staffData[i].getDate().year << " " << staffData[i].getUserName() << "\n" << staffData[i].getPassword() << '\n';
     }
     file.close();
 }
@@ -1983,12 +1974,7 @@ int main(){
     retrieveTransactionDetails();
 
     initialize_data();
-//    Cashier cashier;
-//    cashier.stockDecrement();
-//    FloorWorker floorworker;
-//    floorworker.stockIncrement();
     
      logIn();
-    //////STOCK UP VS NEW STOCK UP
     return 0;
 }
