@@ -1,0 +1,15 @@
+karthick
+Owner 13 7 2021 ktk
+ktkKTK111
+Gowri Shan
+Manager 1 1 2000 gowreeshan
+gowGOW111
+Yuveshanth
+Manager 1 1 2013 yuve
+yuveYUVE1
+another noname
+FloorWorker 2 3 1999 nn2
+nn2NN2
+first noname
+Cashier 1 1 2010 nn
+nnNN11

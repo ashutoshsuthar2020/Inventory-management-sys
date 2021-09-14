@@ -1,0 +1,2 @@
+@echo off
+g++ .\src\main.cpp .\include\Transaction.cpp .\include\staff\Staff.cpp .\include\supply\Supply.cpp .\include\staff\FloorWorker.cpp .\include\staff\Cashier.cpp .\include\staff\Manager.cpp .\include\staff\Owner.cpp .\include\supply\LocalSupply.cpp .\include\supply\InternationalSupply.cpp .\include\item\Item.cpp .\include\item\Produce.cpp .\include\item\Meatseafood.cpp .\include\item\Grain.cpp .\include\item\BakeryFrozenDiarySnacksBeveragesHealthCondiments.cpp .\include\item\Brand.cpp

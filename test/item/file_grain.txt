@@ -1,0 +1,4 @@
+rice
+344 2 5
+B1
+Local
