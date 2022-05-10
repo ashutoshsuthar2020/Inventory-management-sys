@@ -1,4 +1,4 @@
-#inventory management system
+# inventory management system
 
 Simple command-line based program.
 
