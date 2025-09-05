@@ -15,7 +15,7 @@ std::vector<BakeryFrozenDiarySnacksBeveragesHealthCondiments>dataBakeryProduct,d
                 dataBevarages,dataHealthAndBeauty,dataCondimentsAndSpices;
 std::vector<BakeryFrozenDiarySnacksBeveragesHealthCondiments>* vectorPointer[]={&dataBakeryProduct,&dataFrozenProduct,&dataDiaryProduct,
                 &dataSnaksAndSweets,&dataBevarages,&dataHealthAndBeauty,&dataCondimentsAndSpices};
-extern saveSupplyDetails();
+extern void saveSupplyDetails();
 
 bool changeCategory[10]={0,0,0,0,0,0,0,0,0,0};
 float retailPrice,discount,weightOfItem;
@@ -250,7 +250,11 @@ void addNewItem(int Category){
         else
             break;
         }while(true);
-        system("cls");
+		#ifdef _WIN32
+			system("cls");
+		#else
+			system("clear");
+		#endif
     }while((order!='E')&&(order!='e'));
 }
 

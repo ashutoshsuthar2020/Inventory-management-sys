@@ -17,8 +17,12 @@ void Cashier::makeTransaction(std::string fullName){
 	char c;
 	int n = 0;
 	do{
-		do{	
-			system("cls");
+		do{  
+			#ifdef _WIN32
+				system("cls");
+			#else
+				system("clear");
+			#endif
 			n++;
 			cash += addOrRemoveStock(0, &transaction); //remove num items
 			std::cout << "\nMake another transaction to this person (Y/N) : ";

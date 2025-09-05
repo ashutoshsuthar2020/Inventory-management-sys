@@ -4,7 +4,7 @@ Simple command-line based program.
 
 Project details are on **"Project Description.pdf"**.
 
-run **run.bat** to compile and link cpp files
-
+RUN clang++ -std=c++17 -O2 -Wall -Wextra -o inventory $(find . -type f -name '*.cpp')
+THAN RUN ./INVENTORY
 Technologies:
 - C++

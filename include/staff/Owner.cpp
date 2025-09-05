@@ -26,7 +26,11 @@ void Owner::addStaff(std::string userName, std::string password, std::string ful
 
     std::cout << "\nAn account was created for " << position << ", " << fullName << ".\n\nPress enter to go back\n"; 
     getchar();
-    system("cls");
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
     saveStaffDetails();
 }	
 
@@ -47,7 +51,11 @@ void Owner::removeStaff(){
             std::cout << "\nTo close this window press \"N\"\n";
             std::cin >> s;
         }while(s != 'Y' && s != 'N' && s != 'T');
-		system("cls");
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
         switch(s){
             case 'Y':
                 staffData.clear();
@@ -85,8 +93,12 @@ void Owner::userInputFunc(){
     std::string password;
     
     getchar();
-    system("cls");
-	std::cout << "\nADDING NEW STAFF DETAILS\n";
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+    std::cout << "\nADDING NEW STAFF DETAILS\n";
     fullName = enterFN();
     date = enterDate();
     position = enterPos();

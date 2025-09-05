@@ -31,11 +31,15 @@ void Supply::setStatus(std::string s){
 
 std::string enterN(){
 	std::string name;
-	getchar();
-    system("cls");
-	std::cout<<"--- Enter the details of the item ---\n";
-	std::cout<<"Name :  ";
-	std::getline(std::cin, name);
+    getchar();
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+    std::cout<<"--- Enter the details of the item ---\n";
+    std::cout<<"Name :  ";
+    std::getline(std::cin, name);
     return name;
 }
 std::string enterAM(){
